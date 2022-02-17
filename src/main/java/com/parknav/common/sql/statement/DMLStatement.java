@@ -1,10 +1,10 @@
-package com.steatoda.commons.sql.statement;
+package com.parknav.common.sql.statement;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.steatoda.commons.sql.DMLColumn;
+import com.parknav.common.sql.DMLColumn;
 
 public abstract class DMLStatement<S extends DMLStatement<S>> extends SQLWhereStatement<S> {
 

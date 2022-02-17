@@ -1,4 +1,4 @@
-package com.steatoda.commons.sql.statement;
+package com.parknav.common.sql.statement;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.steatoda.commons.sql.HasTableName;
+import com.parknav.common.sql.HasTableName;
 
 public abstract class SQLTableStatement<S extends SQLTableStatement<S>> extends SQLStatement<S> implements HasTableName {
 

@@ -1,4 +1,4 @@
-package com.steatoda.commons.sql.statement;
+package com.parknav.common.sql.statement;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.steatoda.commons.sql.where.WhereTerm;
+import com.parknav.common.sql.where.WhereTerm;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.TextStringBuilder;
 

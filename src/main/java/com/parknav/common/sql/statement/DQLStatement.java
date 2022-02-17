@@ -1,4 +1,4 @@
-package com.steatoda.commons.sql.statement;
+package com.parknav.common.sql.statement;
 
 public abstract class DQLStatement<S extends DQLStatement<S>> extends SQLWhereStatement<S> {
 

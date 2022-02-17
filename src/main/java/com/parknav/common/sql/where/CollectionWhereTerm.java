@@ -1,4 +1,4 @@
-package com.steatoda.commons.sql.where;
+package com.parknav.common.sql.where;
 
 public abstract class CollectionWhereTerm extends WhereTerm {
 

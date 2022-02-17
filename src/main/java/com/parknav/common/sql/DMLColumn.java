@@ -1,4 +1,4 @@
-package com.steatoda.commons.sql;
+package com.parknav.common.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

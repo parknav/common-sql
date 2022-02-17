@@ -1,6 +1,6 @@
-package com.steatoda.commons.sql.statement;
+package com.parknav.common.sql.statement;
 
-import com.steatoda.commons.sql.DMLColumn;
+import com.parknav.common.sql.DMLColumn;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.TextStringBuilder;
 

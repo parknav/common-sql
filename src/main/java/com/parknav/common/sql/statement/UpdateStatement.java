@@ -1,13 +1,12 @@
-package com.steatoda.commons.sql.statement;
+package com.parknav.common.sql.statement;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 
+import com.parknav.common.sql.DMLColumn;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.TextStringBuilder;
-
-import com.steatoda.commons.sql.DMLColumn;
 
 public class UpdateStatement extends DMLStatement<UpdateStatement> {
 	

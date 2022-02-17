@@ -1,4 +1,4 @@
-package com.steatoda.commons.sql.where;
+package com.parknav.common.sql.where;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -9,10 +9,10 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.parknav.common.sql.HasTableName;
 import org.apache.commons.text.TextStringBuilder;
 
-import com.steatoda.commons.sql.HasTableName;
-import com.steatoda.commons.sql.statement.SQLWhereStatement;
+import com.parknav.common.sql.statement.SQLWhereStatement;
 
 public abstract class WhereTerm implements HasTableName {
 

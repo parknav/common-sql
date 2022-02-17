@@ -1,11 +1,11 @@
-package com.steatoda.commons.sql.where;
+package com.parknav.common.sql.where;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.steatoda.commons.sql.QueryBuilder;
+import com.parknav.common.sql.QueryBuilder;
 
 public class SimpleWhereTerm extends WhereTerm {
 

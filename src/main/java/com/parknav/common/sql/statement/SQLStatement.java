@@ -1,4 +1,4 @@
-package com.steatoda.commons.sql.statement;
+package com.parknav.common.sql.statement;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
