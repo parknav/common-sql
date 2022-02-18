@@ -8,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Spliterator;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Spliterator for iterating {@link ResultSet}s.
@@ -17,7 +16,12 @@ import java.util.function.Function;
  */
 public class StatementSpliterator<T> implements Spliterator<T> {
 
-	public StatementSpliterator(PreparedStatement statement, Function<ResultSet, T> resolver) {
+	@FunctionalInterface
+	public interface Resolver<T> {
+		T resolve(ResultSet resultSet) throws SQLException;
+	}
+
+	public StatementSpliterator(PreparedStatement statement, Resolver<T> resolver) {
 
 		this.statement = statement;
 		this.resolver = resolver;
@@ -54,7 +58,7 @@ public class StatementSpliterator<T> implements Spliterator<T> {
 			if (!resultSet.next())
 				return false;
 
-			T object = resolver.apply(resultSet);
+			T object = resolver.resolve(resultSet);
 
 			action.accept(object);
 
@@ -83,6 +87,6 @@ public class StatementSpliterator<T> implements Spliterator<T> {
 
 	private final PreparedStatement statement;
 	private final ResultSet resultSet;
-	private final Function<ResultSet, T> resolver;
+	private final Resolver<T> resolver;
 
 }
