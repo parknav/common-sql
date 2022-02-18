@@ -11,7 +11,8 @@ sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
 group 'com.parknav'
-version '1.1.0'
+//version '99-SNAPSHOT'
+version '1.1.1'
 
 idea {
 	module {
