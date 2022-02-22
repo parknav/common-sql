@@ -55,6 +55,11 @@ public class StatementSpliterator<T> implements Spliterator<T> {
 
 		try {
 
+			// this method may be invoked even if we previously returned false,
+			// so guard us from accessing already closed ResultSet
+			if (resultSet.isClosed())
+				return false;
+
 			if (!resultSet.next()) {
 				close();
 				return false;
