@@ -55,8 +55,10 @@ public class StatementSpliterator<T> implements Spliterator<T> {
 
 		try {
 
-			if (!resultSet.next())
+			if (!resultSet.next()) {
+				close();
 				return false;
+			}
 
 			T object = resolver.resolve(resultSet);
 
@@ -78,7 +80,7 @@ public class StatementSpliterator<T> implements Spliterator<T> {
 			if (statement != null)
 				statement.close();
 		} catch (SQLException e) {
-			throw new RuntimeException("Error closing spliterator", e);
+			throw new RuntimeException("Error closing resources", e);
 		}
 	}
 
