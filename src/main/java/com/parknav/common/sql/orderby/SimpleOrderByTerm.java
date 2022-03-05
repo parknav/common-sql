@@ -1,24 +1,24 @@
-package com.parknav.common.sql.where;
+package com.parknav.common.sql.orderby;
+
+import com.parknav.common.sql.QueryBuilder;
+import com.parknav.common.sql.SimpleTerm;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.parknav.common.sql.QueryBuilder;
-import com.parknav.common.sql.SimpleTerm;
+public class SimpleOrderByTerm extends OrderByTerm {
 
-public class SimpleWhereTerm extends WhereTerm {
-
-	public SimpleWhereTerm add(SimpleTerm.Builder builder) {
+	public SimpleOrderByTerm add(SimpleTerm.Builder builder) {
 		return add(new SimpleTerm(builder));
 	}
 	
-	public SimpleWhereTerm add(SimpleTerm.Builder builder, SimpleTerm.Setter setter) {
+	public SimpleOrderByTerm add(SimpleTerm.Builder builder, SimpleTerm.Setter setter) {
 		return add(new SimpleTerm(builder, setter));
 	}
 	
-	public SimpleWhereTerm add(SimpleTerm term) {
+	public SimpleOrderByTerm add(SimpleTerm term) {
 		terms.add(term);
 		return this;
 	}

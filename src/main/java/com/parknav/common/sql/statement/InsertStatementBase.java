@@ -2,9 +2,12 @@ package com.parknav.common.sql.statement;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.parknav.common.sql.DMLColumn;
+import com.parknav.common.sql.orderby.OrderByTerm;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.TextStringBuilder;
 
 public abstract class InsertStatementBase<S extends InsertStatementBase<S>> extends DMLStatement<S> {
@@ -29,8 +32,10 @@ public abstract class InsertStatementBase<S extends InsertStatementBase<S>> exte
 			.appendln(")")
 		;
 
-		builder.appendln(buildOnConflictExpression());
-		
+		Optional.ofNullable(buildOnConflictExpression())
+			.filter(StringUtils::isNotBlank)
+			.ifPresent(builder::append);
+
 		if (!getDQLColumns().isEmpty())
 			builder
 				.appendln("RETURNING")
@@ -51,6 +56,11 @@ public abstract class InsertStatementBase<S extends InsertStatementBase<S>> exte
 
 	}
 
+	/**
+	 * Builds whole ON CONFLICT expression. If non-null, string will be terminated with newline.
+	 *
+	 * @return built ON CONFLICT expression
+	 */
 	protected String buildOnConflictExpression() {
 		return null;
 	}

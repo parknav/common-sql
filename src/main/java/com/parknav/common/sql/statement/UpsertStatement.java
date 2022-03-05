@@ -140,7 +140,7 @@ public class UpsertStatement extends InsertStatementBase<UpsertStatement> {
 	protected String buildOnConflictExpression() {
 
 		if (upsertSetColumns.isEmpty())
-			return "ON CONFLICT DO NOTHING";
+			return "ON CONFLICT DO NOTHING\n";
 
 		if (StringUtils.isBlank(conflictTarget))
 			throw new IllegalStateException("UPSERT must have conflict target defined");
@@ -153,7 +153,7 @@ public class UpsertStatement extends InsertStatementBase<UpsertStatement> {
 		builder
 			.append("ON CONFLICT (").append(conflictTarget).appendln(") DO UPDATE SET")
 			.appendln(upsertSetColumns.stream().map(column -> String.format("%1$s = EXCLUDED.%1$s", column)).map(this::prefixTab).collect(Collectors.joining(",\n")))
-			.append("WHERE ").append(upsertWhereColumns.stream().map(column -> String.format("%s = EXCLUDED.%s", toTableColumn(column), column)).collect(Collectors.joining(" AND ")))
+			.append("WHERE ").appendln(upsertWhereColumns.stream().map(column -> String.format("%s = EXCLUDED.%s", toTableColumn(column), column)).collect(Collectors.joining(" AND ")))
 		;
 
 		return builder.toString();

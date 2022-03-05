@@ -6,10 +6,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.parknav.common.sql.orderby.OrderByTerm;
+import com.parknav.common.sql.orderby.SimpleOrderByTerm;
 import com.parknav.common.sql.where.WhereTerm;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.TextStringBuilder;
@@ -47,10 +50,9 @@ public class SelectStatement extends DQLStatement<SelectStatement> {
 			.filter(StringUtils::isNotBlank)
 			.ifPresent(builder::append);
 
-		Optional.of(String.join(", ", getOrderByExpressions()))
+		Optional.ofNullable(buildOrderByExpression())
 			.filter(StringUtils::isNotBlank)
-			.map(expressions -> "ORDER BY " + expressions)
-			.ifPresent(builder::appendln);
+			.ifPresent(builder::append);
 
 		Optional.ofNullable(limitExpression)
 			.map(expression -> "LIMIT " + expression)
@@ -71,8 +73,10 @@ public class SelectStatement extends DQLStatement<SelectStatement> {
 	}
 	
 	public SelectStatement setDistinctOnColumns(List<String> columns) {
-		this.distinctOnColumns = columns;
-		return self();
+		if (columns == null)
+			throw new NullPointerException();
+		this.distinctOnColumns.clear();
+		return addDistinctOnColumns(columns);
 	}
 	
 	public SelectStatement addDistinctOnColumns(String... columns) {
@@ -122,12 +126,14 @@ public class SelectStatement extends DQLStatement<SelectStatement> {
 	// JOIN
 	
 	public List<String> getJoinExpressions() {
-		return orderByExpressions;
+		return joinExpressions;
 	}
 	
-	public SelectStatement setJoinExpressions(List<String> expressions) {
-		this.orderByExpressions = expressions;
-		return self();
+	public SelectStatement setJoinExpressions(Collection<String> expressions) {
+		if (expressions == null)
+			throw new NullPointerException();
+		this.joinExpressions.clear();
+		return addJoinExpressions(expressions);
 	}
 	
 	public SelectStatement addJoinExpressions(String... expressions) {
@@ -140,23 +146,52 @@ public class SelectStatement extends DQLStatement<SelectStatement> {
 	}
 
 	// ORDER BY
-	
-	public List<String> getOrderByExpressions() {
-		return orderByExpressions;
+
+	public List<OrderByTerm> getOrderByTerms() {
+		return orderByTerms;
 	}
-	
-	public SelectStatement setOrderByExpressions(List<String> expressions) {
-		this.orderByExpressions = expressions;
+
+	public SelectStatement setOrderByTerms(Collection<OrderByTerm> orderByTerms) {
+		if (orderByTerms == null)
+			throw new NullPointerException();
+		this.orderByTerms.clear();
+		return addOrderByTerms(orderByTerms);
+	}
+
+	public SelectStatement addOrderByTerms(OrderByTerm... orderByTerms) {
+		addOrderByTerms(Arrays.asList(orderByTerms));
 		return self();
 	}
-	
-	public SelectStatement addOrderByExpressions(String... expressions) {
-		return addOrderByExpressions(Arrays.asList(expressions));
-	}
-	
-	public SelectStatement addOrderByExpressions(Collection<String> expressions) {
-		this.orderByExpressions.addAll(expressions);
+
+	public SelectStatement addOrderByTerms(Collection<OrderByTerm> orderByTerms) {
+		for (OrderByTerm term : orderByTerms) {
+			term.setStatement(this);
+			this.orderByTerms.add(term);
+		}
 		return self();
+	}
+
+	// ORDER BY (simplified, plain strings)
+
+	public SelectStatement setOrderByExpressions(Collection<String> orderByExpressions) {
+		if (orderByExpressions == null)
+			throw new NullPointerException();
+		this.orderByTerms.clear();
+		return addOrderByExpressions(orderByExpressions);
+	}
+
+	public SelectStatement addOrderByExpressions(String... orderByExpressions) {
+		addOrderByExpressions(Arrays.asList(orderByExpressions));
+		return self();
+	}
+
+	public SelectStatement addOrderByExpressions(Collection<String> orderByExpressions) {
+		return addOrderByTerms(
+			orderByExpressions
+				.stream()
+				.map(expression -> new SimpleOrderByTerm().add(builder -> builder.formatln(expression)))
+				.collect(Collectors.toList())
+		);
 	}
 
 	// LIMIT
@@ -173,39 +208,78 @@ public class SelectStatement extends DQLStatement<SelectStatement> {
 		return self();
 	}
 
-	protected String buildJoinExpression() {
-
-		TextStringBuilder builder = new TextStringBuilder();
-		
-		// own JOINs
-		for (String join : joinExpressions)
-			builder.appendSeparator('\n').appendln(join);
-			
-		// JOINs from WHERE terms
-		for (WhereTerm term : getWhereTerms())
-			for (String join : term.getJoinExpressions())
-				builder.appendSeparator('\n').appendln(join);
-		
-		return builder.toString();
-		
-	}
-
 	@Override
 	public void setValues(PreparedStatement statement) throws SQLException {
 
 		int index = 0;
 		
 		index = setWhereValues(statement, index);
-		
+
+		//noinspection UnusedAssignment
+		index = setOrderByValues(statement, index);
+
+	}
+
+	protected String buildJoinExpression() {
+
+		TextStringBuilder builder = new TextStringBuilder();
+
+		// own JOINs
+		for (String join : joinExpressions)
+			builder.appendSeparator('\n').appendln(join);
+
+		// JOINs from WHERE terms
+		for (WhereTerm term : getWhereTerms())
+			for (String join : term.getJoinExpressions())
+				builder.appendSeparator('\n').appendln(join);
+
+		return builder.toString();
+
+	}
+
+	/**
+	 * Builds whole ORDER BY expression by joining clauses from all {@link OrderByTerm}s. If non-null, string will be terminated with newline.
+	 *
+	 * @return built ORDER BY expression
+	 */
+	protected String buildOrderByExpression() {
+
+		if (orderByTerms.isEmpty())
+			return null;
+
+		String expression = getOrderByTerms()
+			.stream()
+			.map(OrderByTerm::build)
+			.map(StringUtils::stripToNull)	// NOTE strips leading tab and trailing newline, too!
+			.filter(Objects::nonNull)
+			.map(this::prefixTab)																	// prefix first line
+			.map(str -> str.replaceAll("\n", "\n".concat(StringUtils.repeat('\t', getLevel()))))	// prefix each new line
+			.collect(Collectors.joining(",\n"));
+
+		if (StringUtils.isBlank(expression))
+			return null;
+
+		return new TextStringBuilder()
+			.appendln("ORDER BY")
+			.appendln(expression)	// StringUtils.stripToNull stripped trailing newline, so re-apply it
+			.toString();
+
+	}
+
+	protected int setOrderByValues(PreparedStatement statement, int index) throws SQLException {
+		for (OrderByTerm term : getOrderByTerms())
+			index = term.setValues(statement, index);
+		return index;
 	}
 
 	@Override
 	protected SelectStatement self() { return this; }
 
-	private List<String> distinctOnColumns = new ArrayList<>();
-	private List<String> joinExpressions = new ArrayList<>();
-	private List<String> orderByExpressions = new ArrayList<>();
+	private final List<String> distinctOnColumns = new ArrayList<>();
+	private final List<String> joinExpressions = new ArrayList<>();
+	private final List<OrderByTerm> orderByTerms = new ArrayList<>();
+
 	private String limitExpression;
 	private String offsetExpression;
-	
+
 }

@@ -78,6 +78,6 @@ public abstract class SQLWhereStatement<S extends SQLTableStatement<S>> extends 
 		return index;
 	}
 
-	private List<WhereTerm> whereTerms = new ArrayList<>();
+	private final List<WhereTerm> whereTerms = new ArrayList<>();
 	
 }
