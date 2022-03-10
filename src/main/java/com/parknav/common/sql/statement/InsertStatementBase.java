@@ -26,7 +26,7 @@ public abstract class InsertStatementBase<S extends InsertStatementBase<S>> exte
 
 		builder
 			.append("INSERT INTO ").append(getTableName()).appendln(" (")
-				.appendln(getDMLColumns().stream().map(DMLColumn::getName).map(this::prefixTab).collect(Collectors.joining(",\n")))
+				.appendln(getDMLColumns().stream().map(DMLColumn::getName).map(column -> "\"" + column + "\"").map(this::prefixTab).collect(Collectors.joining(",\n")))
 			.appendln(") VALUES (")
 				.appendln(getDMLColumns().stream().map(DMLColumn::getInsertValue).map(this::prefixTab).collect(Collectors.joining(",\n")))
 			.appendln(")")
